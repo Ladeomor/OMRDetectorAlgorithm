@@ -8,13 +8,18 @@ import java.io.IOException;
 public class OMRDetectionAlgo {
     public static void main(String[] args) {
         OMRDetectionAlgo omrDetectionAlgo = new OMRDetectionAlgo();
-        BufferedImage img = null;
+        BufferedImage inputImage = null;
         try {
             // Provide the path to your image file
-            File file = new File("images/OMR_SHEET_ONE.jpg");
-            img = ImageIO.read(file);
-            omrDetectionAlgo.display(img);
-            System.out.println("Image loaded successfully!");
+            File file = new File("images/OMR_SHEET_TWO.jpg");
+            inputImage = ImageIO.read(file);
+            if(inputImage != null){
+//                omrDetectionAlgo.display(img);
+                inputImage = toGrayScale2(inputImage);
+                omrDetectionAlgo.display(inputImage);
+                System.out.println("Image loaded successfully!");
+            }
+
         } catch (IOException e) {
             System.out.println("Error loading image: " + e.getMessage());
         }
@@ -32,6 +37,29 @@ public class OMRDetectionAlgo {
         frame.pack();
         frame.setVisible(true);
     }
+    public static BufferedImage toGrayScale2 (BufferedImage img) {
+        System.out.println("  Converting to GrayScale2.");
+
+        BufferedImage grayImage = new BufferedImage(
+                img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        int rgb=0, r=0, g=0, b=0;
+        for (int y=0; y<img.getHeight(); y++) {
+            for (int x=0; x<img.getWidth(); x++) {
+                rgb = (int)(img.getRGB(x, y));
+                r = ((rgb >> 16) & 0xFF);
+                g = ((rgb >> 8) & 0xFF);
+                b = (rgb & 0xFF);
+                rgb = (int)((r+g+b)/3);
+                //rgb = (int)(0.299 * r + 0.587 * g + 0.114 * b);
+                rgb = (255<<24) | (rgb<<16) | (rgb<<8) | rgb;
+                grayImage.setRGB(x,y,rgb);
+            }
+        }
+
+        return grayImage;
+    }
+
+
 
 
 }
