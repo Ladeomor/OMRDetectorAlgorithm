@@ -15,7 +15,8 @@ public class OMRDetectionAlgo {
             inputImage = ImageIO.read(file);
             if(inputImage != null){
 //                omrDetectionAlgo.display(img);
-                inputImage = toGrayScale(inputImage);
+                // inputImage = toGrayScale(inputImage);
+                inputImage = shadeFinder(inputImage, 10, 10, 10);
                 omrDetectionAlgo.display(inputImage);
                 System.out.println("Image loaded successfully!");
 
@@ -44,7 +45,7 @@ public class OMRDetectionAlgo {
         System.out.println("Converting to GrayScale.");
 
         BufferedImage grayImage = new BufferedImage(
-                img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
         int rgb=0, r=0, g=0, b=0;
         for (int y=0; y<img.getHeight(); y++) {
             for (int x=0; x<img.getWidth(); x++) {
@@ -61,31 +62,39 @@ public class OMRDetectionAlgo {
         return grayImage;
     }
 
-    public static int shadeFinder(BufferedImage img, int m, int n){
+    public static BufferedImage shadeFinder(BufferedImage img, int m, int n, int threshold){
         BufferedImage grayImage = null;
         grayImage = toGrayScale(img);
         for(int y= 0; y + n < grayImage.getHeight(); y++){
             for(int x = 0; x + m < grayImage.getWidth(); x++){
-                averagePixelValue(grayImage, x, y, x+m,y+n);
+                int ave = averagePixelValue(grayImage, m, n, x, y);
+                int rgb = 0;
+                rgb = (255<<24) | (255<<16);
+                if (ave < threshold) SetPixels(grayImage, m, n, x, y, rgb);
             }
         }
-        return 0;
+        return grayImage;
     }
 
+    // use for black and white images only
     public static int averagePixelValue(BufferedImage img, int w, int h, int xpos, int ypos){
         int sum = 0;
-        int totalPixels = (xpos - w) * (ypos - h);
-
-        for (int j = h; j < h + ypos; j++) {
-            for (int i = w; i < w + xpos; i++) {
-                sum = i + j;
+        for (int j = ypos; j < ypos + h; j++) {
+            for (int i = xpos; i < xpos + w; i++) {
+                int redVal = (img.getRGB(xpos, ypos) >> 16) & 0xFF;
+                sum += redVal;
             }
         }
-        int averagePixValue = sum / totalPixels;
-        return  averagePixValue;
+        return  sum/(w*h);
     }
 
 
-
+    public static void SetPixels(BufferedImage img, int w, int h, int xpos, int ypos, int val){
+        for (int j = ypos; j < ypos + h; j++) {
+            for (int i = xpos; i < xpos + w; i++) {
+                img.setRGB(xpos, ypos, val);
+            }
+        }
+    }
 
 }
