@@ -52,7 +52,6 @@ public class OMRDetectionAlgo {
                 g = ((rgb >> 8) & 0xFF);
                 b = (rgb & 0xFF);
                 rgb = (int)((r+g+b)/3);
-                //rgb = (int)(0.299 * r + 0.587 * g + 0.114 * b);
                 rgb = (255<<24) | (rgb<<16) | (rgb<<8) | rgb;
                 grayImage.setRGB(x,y,rgb);
             }
