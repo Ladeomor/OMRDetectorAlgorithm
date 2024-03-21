@@ -18,6 +18,7 @@ public class OMRDetectionAlgo {
                 inputImage = toGrayScale(inputImage);
                 omrDetectionAlgo.display(inputImage);
                 System.out.println("Image loaded successfully!");
+
             }
 
         } catch (IOException e) {
@@ -40,7 +41,7 @@ public class OMRDetectionAlgo {
     }
    //convert image to grayscale
     public static BufferedImage toGrayScale (BufferedImage img) {
-        System.out.println("  Converting to GrayScale.");
+        System.out.println("Converting to GrayScale.");
 
         BufferedImage grayImage = new BufferedImage(
                 img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
