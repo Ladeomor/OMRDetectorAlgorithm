@@ -61,6 +61,30 @@ public class OMRDetectionAlgo {
         return grayImage;
     }
 
+    public static int shadeFinder(BufferedImage img, int m, int n){
+        BufferedImage grayImage = null;
+        grayImage = toGrayScale(img);
+        for(int y= 0; y + n < grayImage.getHeight(); y++){
+            for(int x = 0; x + m < grayImage.getWidth(); x++){
+                averagePixelValue(grayImage, x, y, x+m,y+n);
+            }
+        }
+        return 0;
+    }
+
+    public static int averagePixelValue(BufferedImage img, int w, int h, int xpos, int ypos){
+        int sum = 0;
+        int totalPixels = (xpos - w) * (ypos - h);
+
+        for (int j = h; j < h + ypos; j++) {
+            for (int i = w; i < w + xpos; i++) {
+                sum = i + j;
+            }
+        }
+        int averagePixValue = sum / totalPixels;
+        return  averagePixValue;
+    }
+
 
 
 
