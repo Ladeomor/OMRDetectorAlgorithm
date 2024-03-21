@@ -15,7 +15,7 @@ public class OMRDetectionAlgo {
             inputImage = ImageIO.read(file);
             if(inputImage != null){
 //                omrDetectionAlgo.display(img);
-                inputImage = toGrayScale2(inputImage);
+                inputImage = toGrayScale(inputImage);
                 omrDetectionAlgo.display(inputImage);
                 System.out.println("Image loaded successfully!");
             }
@@ -25,8 +25,9 @@ public class OMRDetectionAlgo {
         }
     }
 
+    //display image
     public void display (BufferedImage img) {
-        //System.out.println("  Displaying image.");
+        System.out.println("  Displaying image.");
         JFrame frame = new JFrame();
         JLabel label = new JLabel();
         frame = new JFrame();
@@ -37,8 +38,9 @@ public class OMRDetectionAlgo {
         frame.pack();
         frame.setVisible(true);
     }
-    public static BufferedImage toGrayScale2 (BufferedImage img) {
-        System.out.println("  Converting to GrayScale2.");
+   //convert image to grayscale
+    public static BufferedImage toGrayScale (BufferedImage img) {
+        System.out.println("  Converting to GrayScale.");
 
         BufferedImage grayImage = new BufferedImage(
                 img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
