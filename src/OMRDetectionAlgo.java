@@ -11,7 +11,7 @@ public class OMRDetectionAlgo {
         BufferedImage img = null;
         try {
             // Provide the path to your image file
-            File file = new File("images/roll.png");
+            File file = new File("images/OMR_SHEET_ONE.jpg");
             img = ImageIO.read(file);
             omrDetectionAlgo.display(img);
             System.out.println("Image loaded successfully!");
