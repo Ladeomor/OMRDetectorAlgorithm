@@ -11,12 +11,12 @@ public class OMRDetectionAlgo {
         BufferedImage inputImage = null;
         try {
             // Provide the path to your image file
-            File file = new File("images/roll.png");
+            File file = new File("images/OMR_SHEET_TWO.jpg");
             inputImage = ImageIO.read(file);
             if(inputImage != null){
 //                omrDetectionAlgo.display(img);
                 // inputImage = toGrayScale(inputImage);
-                inputImage = shadeFinder(inputImage, 11, 11, 100);
+                inputImage = shadeFinder(inputImage, 11, 11, 100, new Rectangle(new Vector2(200, 50), new Vector2(560, 550)));
                 omrDetectionAlgo.display(inputImage);
                 System.out.println("Image loaded successfully!");
 
@@ -108,13 +108,15 @@ public class OMRDetectionAlgo {
         return minOrg + ((maxNew - minNew) * (valOrg - minOrg))/(maxOrg - minOrg);
     }
 
-    public static BufferedImage shadeFinder(BufferedImage img, int m, int n, int threshold){
+    public static BufferedImage shadeFinder(BufferedImage img, int m, int n, int threshold, Rectangle rect){
         BufferedImage grayImage = null;
         grayImage = toGrayScale(img);
         grayImage = Contrast(grayImage, 0, 190, 0, 1);
         grayImage = Contrast(grayImage, 0, 1, 0, 255);
-        for(int y= 0; y + n < grayImage.getHeight(); y++){
-            for(int x = 0; x + m < grayImage.getWidth(); x++){
+        if(rect.D.y >= grayImage.getHeight() && rect.D.x >= grayImage.getWidth()) return grayImage;
+
+        for(int y = (int)rect.A.y ; y + n < rect.D.y; y++){
+            for(int x = (int)rect.A.x; x + m < rect.D.x; x++){
                 int ave = averagePixelValue(grayImage, m, n, x, y);
                 
                 if (ave < threshold){
