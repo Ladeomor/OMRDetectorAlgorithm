@@ -16,7 +16,7 @@ public class OMRDetectionAlgo {
             if(inputImage != null){
 //                omrDetectionAlgo.display(img);
                 // inputImage = toGrayScale(inputImage);
-                inputImage = shadeFinder(inputImage, 10, 10, 10);
+                inputImage = shadeFinder(inputImage, 11, 11, 100);
                 omrDetectionAlgo.display(inputImage);
                 System.out.println("Image loaded successfully!");
 
@@ -62,15 +62,67 @@ public class OMRDetectionAlgo {
         return grayImage;
     }
 
+    // // convert grayscale image to BW
+	// private static BufferedImage boostContrast(BufferedImage img) {
+	// 	// compute average pixel darkness
+	// 	int avg = 0;
+	// 	for (int y=0; y<img.getHeight(); y++) {
+	// 			for (int x=0; x<img.getWidth(); x++) {
+	// 				avg += img.getRGB(x, y)& 0xFF;
+	// 			}
+	// 		}
+	// 	avg /= img.getHeight() * img.getWidth();
+
+	// 	// convert grayscale pixels in img to BW
+	// 	for (int y=0; y<img.getHeight(); y++) {
+	// 		for (int x=0; x<img.getWidth(); x++) {
+	// 			int p = img.getRGB(x, y)& 0xFF;
+	// 			if (p>avg)
+	// 				p = (255<<24) | (255<<16) | (255<<8) | 255;
+	// 			else
+	// 				p = (255<<24) | (0<<16) | (0<<8) | 0;
+	// 			img.setRGB(x, y, p);
+	// 		}
+	// 	}
+	// 	return img;
+	// }
+
+    // scale Black and white image
+    private static BufferedImage Contrast(BufferedImage img, float minOrg, float maxOrg, float minNew, float maxNew) {
+		// convert grayscale pixels in img to BW
+		for (int y=0; y<img.getHeight(); y++) {
+			for (int x=0; x<img.getWidth(); x++) {
+				int p = img.getRGB(x, y)& 0xFF;
+                int newPix = (int)Lerp(minOrg, maxOrg, p, minNew, maxNew);
+                if (newPix > 255) newPix = 255;
+                if (newPix < 0) newPix =  0;
+                int rgb = 0;
+                rgb = (255<<24) | (newPix<<16) | (newPix<<8) | newPix;
+				img.setRGB(x, y, rgb);
+			}
+		}
+		return img;
+	}
+
+    public static float Lerp(float minOrg, float maxOrg, float valOrg, float minNew, float maxNew){
+        return minOrg + ((maxNew - minNew) * (valOrg - minOrg))/(maxOrg - minOrg);
+    }
+
     public static BufferedImage shadeFinder(BufferedImage img, int m, int n, int threshold){
         BufferedImage grayImage = null;
         grayImage = toGrayScale(img);
+        grayImage = Contrast(grayImage, 0, 190, 0, 1);
+        grayImage = Contrast(grayImage, 0, 1, 0, 255);
         for(int y= 0; y + n < grayImage.getHeight(); y++){
             for(int x = 0; x + m < grayImage.getWidth(); x++){
                 int ave = averagePixelValue(grayImage, m, n, x, y);
-                int rgb = 0;
-                rgb = (255<<24) | (255<<16);
-                if (ave < threshold) SetPixels(grayImage, m, n, x, y, rgb);
+                
+                if (ave < threshold){
+                    int rgb = 0;
+                    rgb = (255<<24) | (255<<16);
+                    SetPixels(grayImage, m, n, x, y, rgb);
+                    // System.out.println(ave);
+                }
             }
         }
         return grayImage;
@@ -81,7 +133,7 @@ public class OMRDetectionAlgo {
         int sum = 0;
         for (int j = ypos; j < ypos + h; j++) {
             for (int i = xpos; i < xpos + w; i++) {
-                int redVal = (img.getRGB(xpos, ypos) >> 16) & 0xFF;
+                int redVal = ((int)img.getRGB(i, j) >> 16) & 0xFF;
                 sum += redVal;
             }
         }
@@ -92,7 +144,7 @@ public class OMRDetectionAlgo {
     public static void SetPixels(BufferedImage img, int w, int h, int xpos, int ypos, int val){
         for (int j = ypos; j < ypos + h; j++) {
             for (int i = xpos; i < xpos + w; i++) {
-                img.setRGB(xpos, ypos, val);
+                img.setRGB(i, j, val);
             }
         }
     }
