@@ -6,17 +6,20 @@ import java.io.File;
 import java.io.IOException;
 
 public class OMRDetectionAlgo {
+    public enum LabelAxis{horizontal, vertical}
+
     public static void main(String[] args) {
         OMRDetectionAlgo omrDetectionAlgo = new OMRDetectionAlgo();
         BufferedImage inputImage = null;
         try {
             // Provide the path to your image file
-            File file = new File("images/OMR_SHEET_TWO.jpg");
+            File file = new File("images/Praise.png");
             inputImage = ImageIO.read(file);
             if(inputImage != null){
 //                omrDetectionAlgo.display(img);
                 // inputImage = toGrayScale(inputImage);
-                inputImage = shadeFinder(inputImage, 11, 11, 100, new Rectangle(new Vector2(200, 50), new Vector2(560, 550)));
+                // inputImage = shadeFinder(inputImage, 11, 11, 100, new Rectangle(new Vector2(240, 48), new Vector2(301, 548)), 35, new String[]{"A", "B", "C", "D"}, LabelAxis.horizontal);
+                inputImage = shadeFinder(inputImage, 32, 32, 100, new Rectangle(new Vector2(36, 150), new Vector2(1350, 1290)), 30, new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}, LabelAxis.vertical);
                 omrDetectionAlgo.display(inputImage);
                 System.out.println("Image loaded successfully!");
 
@@ -40,7 +43,8 @@ public class OMRDetectionAlgo {
         frame.pack();
         frame.setVisible(true);
     }
-   //convert image to grayscale
+    
+    //convert image to grayscale
     public static BufferedImage toGrayScale (BufferedImage img) {
         System.out.println("Converting to GrayScale.");
 
@@ -105,28 +109,46 @@ public class OMRDetectionAlgo {
 	}
 
     public static float Lerp(float minOrg, float maxOrg, float valOrg, float minNew, float maxNew){
-        return minOrg + ((maxNew - minNew) * (valOrg - minOrg))/(maxOrg - minOrg);
+        return minNew + ((maxNew - minNew) * (valOrg - minOrg))/(maxOrg - minOrg);
     }
 
-    public static BufferedImage shadeFinder(BufferedImage img, int m, int n, int threshold, Rectangle rect){
+    public static BufferedImage shadeFinder(BufferedImage img, int m, int n, int threshold, Rectangle rect, int rowNo, String[] label, LabelAxis labelAxis){
         BufferedImage grayImage = null;
         grayImage = toGrayScale(img);
         grayImage = Contrast(grayImage, 0, 190, 0, 1);
         grayImage = Contrast(grayImage, 0, 1, 0, 255);
         if(rect.D.y >= grayImage.getHeight() && rect.D.x >= grayImage.getWidth()) return grayImage;
+        String[] output = new String[rowNo];
 
         for(int y = (int)rect.A.y ; y + n < rect.D.y; y++){
             for(int x = (int)rect.A.x; x + m < rect.D.x; x++){
                 int ave = averagePixelValue(grayImage, m, n, x, y);
                 
+                // Area is shaded
                 if (ave < threshold){
                     int rgb = 0;
                     rgb = (255<<24) | (255<<16);
                     SetPixels(grayImage, m, n, x, y, rgb);
+
+                    switch (labelAxis) {
+                        case horizontal:
+                            // int outputIndex = (int)Lerp(rect.A.y, rect.D.y, y + n/2, 0, rowNo);
+                            // int labelIndex = (int)Lerp(rect.A.x, rect.D.x, x + m/2, 0, label.length );
+                            // System.out.println(outputIndex);
+
+                            output[(int)Lerp(rect.A.y, rect.D.y, y + n/2, 0, rowNo)] = label[(int)Lerp(rect.A.x, rect.D.x, x + m/2, 0, label.length)];
+                            break;
+                    
+                        case vertical:
+                            output[(int)Lerp(rect.A.x, rect.D.x, x + m/2, 0, rowNo)] = label[(int)Lerp(rect.A.y, rect.D.y, y + n/2, 0, label.length)];
+                            break;
+                    }
                     // System.out.println(ave);
                 }
             }
         }
+
+        for(int i = 0; i < output.length;  i++)  System.out.println(output[i]);
         return grayImage;
     }
 
