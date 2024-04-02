@@ -5,22 +5,32 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+
 public class OMRDetectionAlgo {
-    public enum LabelAxis{horizontal, vertical}
+    
 
     public static void main(String[] args) {
         OMRDetectionAlgo omrDetectionAlgo = new OMRDetectionAlgo();
         BufferedImage inputImage = null;
         try {
             // Provide the path to your image file
-            File file = new File("images/Praise.png");
+            File file = new File("images/OMR_SHEET_TWO.jpg");
             inputImage = ImageIO.read(file);
             if(inputImage != null){
 //                omrDetectionAlgo.display(img);
                 // inputImage = toGrayScale(inputImage);
                 // inputImage = shadeFinder(inputImage, 11, 11, 100, new Rectangle(new Vector2(240, 48), new Vector2(301, 548)), 35, new String[]{"A", "B", "C", "D"}, LabelAxis.horizontal);
-                inputImage = shadeFinder(inputImage, 32, 32, 100, new Rectangle(new Vector2(36, 150), new Vector2(1350, 1290)), 30, new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}, LabelAxis.vertical);
-                omrDetectionAlgo.display(inputImage);
+                // inputImage = shadeFinder(inputImage, 32, 32, 100, new Rectangle(new Vector2(36, 150), new Vector2(1350, 1290)), 30, new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}, LabelAxis.vertical);
+
+                MarkingScript script = new MarkingScript(inputImage, 100, 11, 11);
+                script.ShadedAreas.add(new QuestionShadedArea("1-35", new Rectangle(new Vector2(240, 48), new Vector2(301, 548)), 35, new String[]{"A", "B", "C", "D"}, LabelAxis.horizontal, new String[]{"A", "B", "C", "D", "B", "C", "C", "B", "A", "B", "D", "B", "C", "B", "C", "B", "A", "D", "C", "C", "B", "C", "A", "A", "A", "D", "A", "B", "B", "B", "C", "C", "B", "B", "D", "D"}));
+                script.ShadedAreas.add(new DataShadedArea("Exam no", new Rectangle(new Vector2(57, 277), new Vector2(157, 417)), 7, new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}, LabelAxis.vertical));
+
+                script.EvaluateShaded();
+                System.out.println("total score: " + script.TotalScore);
+                System.out.println("Exam no: " + ((DataShadedArea)(script.ShadedAreas.get(1))).Data);
+                omrDetectionAlgo.display(script.BufferedImage);
+
                 System.out.println("Image loaded successfully!");
 
             }
@@ -44,80 +54,12 @@ public class OMRDetectionAlgo {
         frame.setVisible(true);
     }
     
-    //convert image to grayscale
-    public static BufferedImage toGrayScale (BufferedImage img) {
-        System.out.println("Converting to GrayScale.");
 
-        BufferedImage grayImage = new BufferedImage(
-        img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        int rgb=0, r=0, g=0, b=0;
-        for (int y=0; y<img.getHeight(); y++) {
-            for (int x=0; x<img.getWidth(); x++) {
-                rgb = (int)(img.getRGB(x, y));
-                r = ((rgb >> 16) & 0xFF);
-                g = ((rgb >> 8) & 0xFF);
-                b = (rgb & 0xFF);
-                rgb = (int)((r+g+b)/3);
-                rgb = (255<<24) | (rgb<<16) | (rgb<<8) | rgb;
-                grayImage.setRGB(x,y,rgb);
-            }
-        }
+    
 
-        return grayImage;
-    }
-
-    // // convert grayscale image to BW
-	// private static BufferedImage boostContrast(BufferedImage img) {
-	// 	// compute average pixel darkness
-	// 	int avg = 0;
-	// 	for (int y=0; y<img.getHeight(); y++) {
-	// 			for (int x=0; x<img.getWidth(); x++) {
-	// 				avg += img.getRGB(x, y)& 0xFF;
-	// 			}
-	// 		}
-	// 	avg /= img.getHeight() * img.getWidth();
-
-	// 	// convert grayscale pixels in img to BW
-	// 	for (int y=0; y<img.getHeight(); y++) {
-	// 		for (int x=0; x<img.getWidth(); x++) {
-	// 			int p = img.getRGB(x, y)& 0xFF;
-	// 			if (p>avg)
-	// 				p = (255<<24) | (255<<16) | (255<<8) | 255;
-	// 			else
-	// 				p = (255<<24) | (0<<16) | (0<<8) | 0;
-	// 			img.setRGB(x, y, p);
-	// 		}
-	// 	}
-	// 	return img;
-	// }
-
-    // scale Black and white image
-    private static BufferedImage Contrast(BufferedImage img, float minOrg, float maxOrg, float minNew, float maxNew) {
-		// convert grayscale pixels in img to BW
-		for (int y=0; y<img.getHeight(); y++) {
-			for (int x=0; x<img.getWidth(); x++) {
-				int p = img.getRGB(x, y)& 0xFF;
-                int newPix = (int)Lerp(minOrg, maxOrg, p, minNew, maxNew);
-                if (newPix > 255) newPix = 255;
-                if (newPix < 0) newPix =  0;
-                int rgb = 0;
-                rgb = (255<<24) | (newPix<<16) | (newPix<<8) | newPix;
-				img.setRGB(x, y, rgb);
-			}
-		}
-		return img;
-	}
-
-    public static float Lerp(float minOrg, float maxOrg, float valOrg, float minNew, float maxNew){
-        return minNew + ((maxNew - minNew) * (valOrg - minOrg))/(maxOrg - minOrg);
-    }
-
-    public static BufferedImage shadeFinder(BufferedImage img, int m, int n, int threshold, Rectangle rect, int rowNo, String[] label, LabelAxis labelAxis){
-        BufferedImage grayImage = null;
-        grayImage = toGrayScale(img);
-        grayImage = Contrast(grayImage, 0, 190, 0, 1);
-        grayImage = Contrast(grayImage, 0, 1, 0, 255);
-        if(rect.D.y >= grayImage.getHeight() && rect.D.x >= grayImage.getWidth()) return grayImage;
+    public static String[] shadeFinder(BufferedImage grayImage, int m, int n, int threshold, Rectangle rect, int rowNo, String[] label, LabelAxis labelAxis){
+        
+        if(rect.D.y >= grayImage.getHeight() && rect.D.x >= grayImage.getWidth()) return null;
         String[] output = new String[rowNo];
 
         for(int y = (int)rect.A.y ; y + n < rect.D.y; y++){
@@ -136,11 +78,11 @@ public class OMRDetectionAlgo {
                             // int labelIndex = (int)Lerp(rect.A.x, rect.D.x, x + m/2, 0, label.length );
                             // System.out.println(outputIndex);
 
-                            output[(int)Lerp(rect.A.y, rect.D.y, y + n/2, 0, rowNo)] = label[(int)Lerp(rect.A.x, rect.D.x, x + m/2, 0, label.length)];
+                            output[(int)MathFunctions.Lerp(rect.A.y, rect.D.y, y + n/2, 0, rowNo)] = label[(int)MathFunctions.Lerp(rect.A.x, rect.D.x, x + m/2, 0, label.length)];
                             break;
                     
                         case vertical:
-                            output[(int)Lerp(rect.A.x, rect.D.x, x + m/2, 0, rowNo)] = label[(int)Lerp(rect.A.y, rect.D.y, y + n/2, 0, label.length)];
+                            output[(int)MathFunctions.Lerp(rect.A.x, rect.D.x, x + m/2, 0, rowNo)] = label[(int)MathFunctions.Lerp(rect.A.y, rect.D.y, y + n/2, 0, label.length)];
                             break;
                     }
                     // System.out.println(ave);
@@ -148,8 +90,8 @@ public class OMRDetectionAlgo {
             }
         }
 
-        for(int i = 0; i < output.length;  i++)  System.out.println(output[i]);
-        return grayImage;
+        // for(int i = 0; i < output.length;  i++)  System.out.println(output[i]);
+        return output;
     }
 
     // use for black and white images only
