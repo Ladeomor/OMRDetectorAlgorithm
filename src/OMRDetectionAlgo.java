@@ -11,12 +11,12 @@ public class OMRDetectionAlgo {
         BufferedImage inputImage = null;
         try {
             // Provide the path to your image file
-            File file = new File("images/roll.png");
+            File file = new File("images/OMR_SHEET_ONE.jpg");
             inputImage = ImageIO.read(file);
             if(inputImage != null){
 //                omrDetectionAlgo.display(img);
                 // inputImage = toGrayScale(inputImage);
-                inputImage = shadeFinder(inputImage, 10, 10, 10);
+                inputImage = shadeFinder(inputImage, 15, 15, 60);
                 omrDetectionAlgo.display(inputImage);
                 System.out.println("Image loaded successfully!");
 
