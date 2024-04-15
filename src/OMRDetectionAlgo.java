@@ -14,24 +14,27 @@ public class OMRDetectionAlgo {
         BufferedImage inputImage = null;
         try {
             // Provide the path to your image file
-
-            File file = new File("images/OMR_SHEET_TWO.jpg");
+            File file = new File("images/Qst60.jpg");
             inputImage = ImageIO.read(file);
             if(inputImage != null){
 //                omrDetectionAlgo.display(img);
                 // inputImage = toGrayScale(inputImage);
-
                 // inputImage = shadeFinder(inputImage, 11, 11, 100, new Rectangle(new Vector2(240, 48), new Vector2(301, 548)), 35, new String[]{"A", "B", "C", "D"}, LabelAxis.horizontal);
                 // inputImage = shadeFinder(inputImage, 32, 32, 100, new Rectangle(new Vector2(36, 150), new Vector2(1350, 1290)), 30, new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}, LabelAxis.vertical);
 
-                MarkingScript script = new MarkingScript(inputImage, 100, 11, 11);
-                script.ShadedAreas.add(new QuestionShadedArea("1-35", new Rectangle(new Vector2(240, 48), new Vector2(301, 548)), 35, new String[]{"A", "B", "C", "D"}, LabelAxis.horizontal, new String[]{"A", "B", "C", "D", "B", "C", "C", "B", "A", "B", "D", "B", "C", "B", "C", "B", "A", "D", "C", "C", "B", "C", "A", "A", "A", "D", "A", "B", "B", "B", "C", "C", "B", "B", "D", "D"}));
-                script.ShadedAreas.add(new DataShadedArea("Exam no", new Rectangle(new Vector2(57, 277), new Vector2(157, 417)), 7, new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}, LabelAxis.vertical));
+                // MarkingScript script = new MarkingScript(inputImage, 100, 11, 11);
+                // script.ShadedAreas.add(new QuestionShadedArea("1-35", new Rectangle(new Vector2(240, 48), new Vector2(301, 548)), 35, new String[]{"A", "B", "C", "D"}, LabelAxis.horizontal, new String[]{"A", "B", "C", "D", "B", "C", "C", "B", "A", "B", "D", "B", "C", "B", "C", "B", "A", "D", "C", "C", "B", "C", "A", "A", "A", "D", "A", "B", "B", "B", "C", "C", "B", "B", "D", "D"}));
+                // script.ShadedAreas.add(new DataShadedArea("Exam no", new Rectangle(new Vector2(57, 277), new Vector2(157, 417)), 7, new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}, LabelAxis.vertical));
 
-                script.EvaluateShaded();
-                System.out.println("total score: " + script.TotalScore);
-                System.out.println("Exam no: " + ((DataShadedArea)(script.ShadedAreas.get(1))).Data);
-                omrDetectionAlgo.display(script.BufferedImage);
+                MarkingScript script2 = new MarkingScript(inputImage, 100, 11, 11);
+                script2.ShadedAreas.add(new QuestionShadedArea("1-20", new Rectangle(new Vector2(117, 607), new Vector2(259, 1218)), 20, new String[]{"A", "B", "C", "D"}, LabelAxis.horizontal, new String[]{"A", "B", "C", "D", "B", "C", "C", "B", "A", "B", "D", "B", "C", "B", "C", "B", "A", "D", "C", "C"}));
+                script2.ShadedAreas.add(new DataShadedArea("Exam no", new Rectangle(new Vector2(81, 255), new Vector2(430, 559)), 10, new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}, LabelAxis.vertical));
+
+
+                script2.EvaluateShaded();
+                System.out.println("total score: " + script2.TotalScore);
+                System.out.println("Exam no: " + ((DataShadedArea)(script2.ShadedAreas.get(1))).Data);
+                omrDetectionAlgo.display(script2.BufferedImage);
 
                 System.out.println("Image loaded successfully!");
 
@@ -53,7 +56,7 @@ public class OMRDetectionAlgo {
         frame.getContentPane().add(label, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setVisible(true);
+        frame.setVisible(true); 
     }
     
 
@@ -116,5 +119,4 @@ public class OMRDetectionAlgo {
             }
         }
     }
-
 }
